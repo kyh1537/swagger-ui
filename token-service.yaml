@@ -1,0 +1,11 @@
+openapi: 3.0.0
+info:
+  title: token-service API Docs
+  description: token Service API 문서
+  version: 1.0.0
+servers:
+  - url: https://localhost:8080
+    description: Dev server
+tags:
+  - name: user
+    description: 유저 관련 API 목록
