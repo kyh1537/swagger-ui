@@ -9,3 +9,249 @@ servers:
 tags:
   - name: user
     description: 유저 관련 API 목록
+paths:
+  /user/v1:
+    post:
+      tags: [ user ]
+      summary: 유저 계정 생성
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 이메일
+                  example: kyh30707@gmail.com
+                password:
+                  type: string
+                  description: 비밀번호
+                  example: password1234
+                checkPassword:
+                  type: string
+                  description: 비밀번호 확인
+                  example: password1234
+                name:
+                  type: string
+                  description: 이름
+                  example: 김개발
+                cellPhone:
+                  type: string
+                  description: 전화 번호
+                  example: 01012345678
+              required: [ email, password, checkPassword, name, cellPhone ]
+      responses:
+        '200':
+          description: successful
+    delete:
+      tags: [ user ]
+      summary: 유저 계정 탈퇴
+      parameters:
+        - $ref: '#/components/parameters/authorization'
+      responses:
+        '200':
+          description: successful
+  /user/v1/login:
+    post:
+      tags: [ user ]
+      summary: 유저 로그인
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: 이메일
+                  example: kyh30707@gmail.com
+                password:
+                  type: string
+                  description: 비밀번호
+                  example: password1234
+              required: [ email, password ]
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        description: 로그인 토큰
+                      refreshToken:
+                        type: string
+                        description: 리프레시 토큰
+                    required: [ accessToken, refreshToken ]
+  /user/v1/logout:
+    post:
+      tags: [ user ]
+      summary: 유저 로그아웃
+      parameters:
+        - $ref: '#/components/parameters/authorization'
+      responses:
+        '200':
+          description: successful
+  /user/v1/refresh:
+    post:
+      tags: [ user ]
+      summary: 유저 재로그인(리프레시)
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: 리프레시 토큰
+              required: [ token ]
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                        description: 로그인 토큰
+                      refreshToken:
+                        type: string
+                        description: 리프레시 토큰
+                    required: [ accessToken, refreshToken ]
+  /user/v1/me:
+    get:
+      tags: [ user ]
+      summary: 로그인 토큰 기준의 유저 정보를 가져온다.
+      parameters:
+        - $ref: '#/components/parameters/authorization'
+      responses:
+        '200':
+          description: successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: 유저 고유 아이디
+                  email:
+                    type: string
+                    description: 유저 이메일
+                  name:
+                    type: string
+                    description: 유저명
+                  cellphone:
+                    type: string
+                    description: 휴대폰 번호
+                  status:
+                    type: string
+                    enum: [ ACTIVE, WITHDRAW ]
+                    description: 유저 상태(ACTIVE-활성화, WITHDRAW- 탈퇴)
+                  createDate:
+                    type: string
+                    format: yyyy-MM-dd hh:mm:ss
+                    description: 생성 일자
+                  updateDate:
+                    type: string
+                    format: yyyy-MM-dd hh:mm:ss
+                    description: 업데이트 일자
+                  withdrawDate:
+                    type: string
+                    format: yyyy-MM-dd hh:mm:ss
+                    description: 탈퇴 일자
+                required: [ id, email, name, cellphone, status, createDate, updateDate ]
+components:
+  parameters:
+    authorization:
+      name: Authorization
+      in: header
+      description: sst
+      required: true
+      schema:
+        type: string
+    size:
+      name: size
+      in: query
+      description: 요청 페이지 사이즈
+      schema:
+        type: integer
+        default: 10
+    page:
+      name: page
+      in: query
+      description: 요청 페이지
+      schema:
+        type: integer
+        default: 0
+
+
+  schemas:
+    page:
+      type: object
+      properties:
+        pageble:
+          type: object
+          properties:
+            sort:
+              type: object
+              properties:
+                empty:
+                  type: boolean
+                sorted:
+                  type: boolean
+                unsorted:
+                  type: boolean
+            offset:
+              type: integer
+            pageNumber:
+              type: integer
+            pageSize:
+              type: integer
+            paged:
+              type: boolean
+            unpaged:
+              type: boolean
+        totalPages:
+          type: integer
+        totalElements:
+          type: integer
+        last:
+          type: boolean
+        number:
+          type: integer
+        sort:
+          type: object
+          properties:
+            empty:
+              type: boolean
+            sorted:
+              type: boolean
+            unsorted:
+              type: boolean
+        size:
+          type: integer
+        numberOfElements:
+          type: integer
+        first:
+          type: boolean
+        empty:
+          type: boolean
+
+  securitySchemes:
+    Auth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
